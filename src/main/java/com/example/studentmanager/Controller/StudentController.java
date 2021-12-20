@@ -36,20 +36,20 @@ public class StudentController {
         }
     }
 
-    //    @GetMapping("/students/{id}")
-//    public ResponseEntity<Student> getStudentById(@PathVariable(value = "id") long id) {
-//        Optional<Student> student = studentRepository.findById(id);
-//
-//        if (student.isPresent()) {
-//            return new ResponseEntity<>(student.get(), HttpStatus.OK);
-//        } else {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
     @GetMapping("/students/{id}")
-    public Student getStudent(@PathVariable("id") int id) {
-        return studentRepository.findById(id).get();
+    public ResponseEntity<Student> getStudentById(@PathVariable(value = "id") int id) {
+        Optional<Student> student = studentRepository.findById(id);
+
+        if (student.isPresent()) {
+            return new ResponseEntity<>(student.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
+//    @GetMapping("/students/{id}")
+//    public Student getStudent(@PathVariable("id") int id) {
+//        return studentRepository.findById(id).get();
+//    }
 
     @PostMapping("/students")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
