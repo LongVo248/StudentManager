@@ -1,9 +1,7 @@
 package com.example.studentmanager.Student;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import org.aspectj.apache.bcel.ExceptionConstants;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -17,7 +15,7 @@ public class Student {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
     @Column(name = "name")

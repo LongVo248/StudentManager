@@ -20,23 +20,19 @@ import java.util.stream.Collectors;
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(StudentNotFoundException.class)
-    public ResponseEntity<Object> handleStudentNotFoundException(
-            StudentNotFoundException ex, WebRequest request) {
-
+    public ResponseEntity<Object> handleStudentNotFoundException(StudentNotFoundException ex, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Student not found");
-
+        body.put("message", "Student with id= "+ex.getMessage()+" has not existed in DB");
+        body.put("Status code", 404);
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(StudentAlreadyExistedException.class)
-    public ResponseEntity<Object> handleStudentAlreadyExistedException(
-            StudentNotFoundException ex, WebRequest request) {
-
+    public ResponseEntity<Object> handleStudentAlreadyExistedException(StudentAlreadyExistedException ex, WebRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("message", "Student ... ");
+        body.put("message", "Student with email=" + ex.getMessage() + " already existed. ");
         body.put("Status", 400);
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }

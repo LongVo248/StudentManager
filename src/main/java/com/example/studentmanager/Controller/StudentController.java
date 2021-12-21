@@ -1,17 +1,21 @@
 package com.example.studentmanager.Controller;
 
+import com.example.studentmanager.Repository.StudentPageRepository;
 import com.example.studentmanager.Repository.StudentRepository;
 import com.example.studentmanager.Service.StudentService;
 import com.example.studentmanager.Student.Student;
+import com.example.studentmanager.Student.StudentPage;
+import com.example.studentmanager.Student.StudentSearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin("*")
@@ -19,7 +23,43 @@ import java.util.Optional;
 public class StudentController {
 
     @Autowired
-    private StudentService studentService;
+    private final StudentService studentService;
+
+    @Autowired
+    private StudentPageRepository studentPageRepository;
+
+    @Autowired
+    private StudentRepository studentRepository;
+
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
+
+    @GetMapping("/page")
+    public Page<Student> getStudents(@RequestParam Optional<Integer> page, @RequestParam Optional<String> sortBy){
+        return studentRepository.findAll(
+                PageRequest.of(
+                        page.orElse(0),
+                        5,
+                        Sort.Direction.ASC, sortBy.orElse("id")
+                )
+        );
+    }
+
+//    @GetMapping("/page/get")
+//    public ResponseEntity<Page<Student>> getStudents (StudentPage studentPage, StudentSearchCriteria studentSearchCriteria){
+//        return new ResponseEntity<>(studentService.getStudents(studentPage,studentSearchCriteria), HttpStatus.OK);
+//    }
+//
+//    @PostMapping("/page/add")
+//    public ResponseEntity<Student> addStudent(@RequestBody Student student){
+//        return new ResponseEntity<>(studentService.addStudent(student), HttpStatus.OK);
+//    }
+
+//    @RequestMapping(method = RequestMethod.GET, value = "/javainuse")
+//    public String sayHello() {
+//        return "Swagger Hello World";
+//    }
 
     @PostMapping
     public ResponseEntity<Student> createNewStudent(@Valid @RequestBody Student student) {
@@ -27,18 +67,19 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<Student>> getAllStudent() {
+    public ResponseEntity<List<Student>> getAllStudent() {
         return new ResponseEntity<>(studentService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudent(@Valid @PathVariable Integer id){
-        Optional<Student> studentOptional= studentService.findById(id);
+    public ResponseEntity<Student> getStudent(@Valid @PathVariable Integer id) {
+        Optional<Student> studentOptional = studentService.findById(id);
         return studentOptional.map(student -> new ResponseEntity<>(student, HttpStatus.OK))
-                .orElseGet(()-> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(@Valid @PathVariable Integer id,@Valid @RequestBody Student student) {
+    public ResponseEntity<Student> updateStudent(@Valid @PathVariable Integer id, @Valid @RequestBody Student student) {
         Optional<Student> studentOptional = studentService.findById(id);
         return studentOptional.map(student1 -> {
             student.setId(student1.getId());
@@ -48,12 +89,12 @@ public class StudentController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteStudent(@Valid @PathVariable Integer id) {
-       try {
-           studentService.remove(id);
-           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-       } catch (Exception e){
-           return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-       }
+        try {
+            studentService.remove(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 //    @DeleteMapping("/{id}")
 //    public ResponseEntity<Student> deleteCategory(@PathVariable Integer id) {
