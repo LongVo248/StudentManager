@@ -1,0 +1,5 @@
+spring:
+  messages: Hello Welcome from Dev
+
+server:
+  port: 8080

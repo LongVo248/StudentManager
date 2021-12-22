@@ -1,0 +1,5 @@
+spring:
+  messages: Hello Welcome from Pro
+
+server:
+  port: 9090
