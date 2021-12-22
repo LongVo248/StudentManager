@@ -15,5 +15,6 @@ public interface IGeneralService<T> {
 
     void remove(Integer id);
 
+//    List<T> search(String x);
 //    Page<T> findByNameContaining(String name, Pageable pageable);
 }

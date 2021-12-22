@@ -6,16 +6,29 @@ import com.example.studentmanager.Service.StudentService;
 import com.example.studentmanager.Student.Student;
 import com.example.studentmanager.Student.StudentPage;
 import com.example.studentmanager.Student.StudentSearchCriteria;
+import com.example.studentmanager.Student.utils.PagingHeaders;
+import com.example.studentmanager.Student.utils.PagingResponse;
+import net.kaczmarzyk.spring.data.jpa.domain.Between;
+import net.kaczmarzyk.spring.data.jpa.domain.Equal;
+import net.kaczmarzyk.spring.data.jpa.domain.In;
+import net.kaczmarzyk.spring.data.jpa.domain.Like;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -43,12 +56,12 @@ public class StudentController {
     private String message;
 
     @GetMapping("/rest/hello")
-    public String sayHello(){
+    public String sayHello() {
         return message;
     }
 
     @GetMapping("/page")
-    public Page<Student> getStudents(@RequestParam Optional<Integer> page, @RequestParam Optional<String> sortBy){
+    public Page<Student> getStudents(@RequestParam Optional<Integer> page, @RequestParam Optional<String> sortBy) {
         return studentRepository.findAll(
                 PageRequest.of(
                         page.orElse(0),
@@ -56,6 +69,34 @@ public class StudentController {
                         Sort.Direction.ASC, sortBy.orElse("id")
                 )
         );
+    }
+
+    @Transactional
+    @GetMapping(value = "/mapsearch", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Student>> get(
+            @And({
+                    @Spec(path = "name", params = "name", spec = Like.class),
+                    @Spec(path = "email", params = "email", spec = Like.class),
+                    @Spec(path = "address", params = "address", spec = In.class),
+                    @Spec(path = "phone", params = "phone", spec = Like.class),
+//                    @Spec(path = "createDate", params = "createDate", spec = Equal.class),
+//                    @Spec(path = "createDate", params = {"createDateGt", "createDateLt"}, spec = Between.class)
+            }) Specification<Student> spec,
+            Sort sort,
+            @RequestHeader HttpHeaders headers) {
+        final PagingResponse response = studentService.get(spec, headers, sort);
+        return new ResponseEntity<>(response.getElements(), returnHttpHeaders(response), HttpStatus.OK);
+    }
+
+    public HttpHeaders returnHttpHeaders(PagingResponse response) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(PagingHeaders.COUNT.getName(), String.valueOf(response.getCount()));
+        headers.set(PagingHeaders.PAGE_SIZE.getName(), String.valueOf(response.getPageSize()));
+        headers.set(PagingHeaders.PAGE_OFFSET.getName(), String.valueOf(response.getPageOffset()));
+        headers.set(PagingHeaders.PAGE_NUMBER.getName(), String.valueOf(response.getPageNumber()));
+        headers.set(PagingHeaders.PAGE_TOTAL.getName(), String.valueOf(response.getPageTotal()));
+        return headers;
     }
 
 //    @GetMapping("/page/get")
@@ -68,10 +109,6 @@ public class StudentController {
 //        return new ResponseEntity<>(studentService.addStudent(student), HttpStatus.OK);
 //    }
 
-//    @RequestMapping(method = RequestMethod.GET, value = "/javainuse")
-//    public String sayHello() {
-//        return "Swagger Hello World";
-//    }
 
     @PostMapping
     public ResponseEntity<Student> createNewStudent(@Valid @RequestBody Student student) {
