@@ -52,24 +52,16 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @Value("${spring.messages}")
-    private String message;
-
-    @GetMapping("/rest/hello")
-    public String sayHello() {
-        return message;
-    }
-
-    @GetMapping("/page")
-    public Page<Student> getStudents(@RequestParam Optional<Integer> page, @RequestParam Optional<String> sortBy) {
-        return studentRepository.findAll(
-                PageRequest.of(
-                        page.orElse(0),
-                        5,
-                        Sort.Direction.ASC, sortBy.orElse("id")
-                )
-        );
-    }
+//    @GetMapping("/page")
+//    public Page<Student> getStudents(@RequestParam Optional<Integer> page, @RequestParam Optional<String> sortBy) {
+//        return studentRepository.findAll(
+//                PageRequest.of(
+//                        page.orElse(0),
+//                        5,
+//                        Sort.Direction.ASC, sortBy.orElse("id")
+//                )
+//        );
+//    }
 
     @Transactional
     @GetMapping(value = "/mapsearch", produces = MediaType.APPLICATION_JSON_VALUE)

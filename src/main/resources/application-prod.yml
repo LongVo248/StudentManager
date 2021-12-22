@@ -1,5 +1,5 @@
 spring:
-  messages: Hello Welcome from Pro
+  messages: Hello Welcome from Prod
 
 server:
   port: 9090

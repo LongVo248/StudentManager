@@ -15,10 +15,6 @@ import java.util.List;
 public interface StudentRepository extends JpaRepository<Student, Integer> {
     Page<Student> findByNameContaining(String name, Pageable pageable);
 
-    //    @Query("select p from Student p where p.name like %?1% "
-//            + "or p.email like %?1%"
-//            + "or p.address like %?1%"
-//            + "or p.phone like %?1%")
     @Query("SELECT p FROM Student p WHERE CONCAT(p.name, ' ', p.email, ' ', p.address, ' ', p.phone) LIKE %?1%")
     public List<Student> search(String keyword);
 }

@@ -1,6 +1,8 @@
 package com.example.studentmanager.Student;
 
 
+import com.example.studentmanager.Audit.Auditable;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -11,7 +13,8 @@ import java.util.Date;
 @Entity
 @Table(name = "student")
 //@Data
-public class Student {
+@EntityListeners(AuditingEntityListener.class)
+public class Student extends Auditable<String> {
 
     @Id
     @Column(name = "id")
